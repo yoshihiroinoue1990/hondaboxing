@@ -1,0 +1,26 @@
+@charset "UTF-8";
+
+/* 動画を囲うdiv */
+.video {
+  position: relative;
+  width:100%; /* 横幅は100%にしておく(ここを変えたい場合は実装コード2の方法を確認してください) */
+  height:0; /* 高さは0にしておく(padding-topで高さを指定するため) */
+  padding-top: 56.25%; /* 高さを指定(16:9) */
+}
+
+/* YouTube埋め込み用のiframe */
+.video iframe{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+@media screen and (min-width: 775px) {
+	/* 動画全体の横幅を指定するためのdiv */
+.youtubetext-container {
+  display: block;
+
+}
+
+}
