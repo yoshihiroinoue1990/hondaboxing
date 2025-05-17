@@ -188,6 +188,19 @@ th {
   text-shadow: 0 0 6px #00000052;
 }
 
+.contact_btn {
+  display: block;
+  width: 300px;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  background-color: #e8b368;
+  color: #ffffff;
+  font-size: 18px;
+  text-align: center;
+  text-shadow: 0 0 6px #00000052;
+}
+
 .imgtext {
   padding: var(--v-space) 0;
   background-color: #ffffff;
