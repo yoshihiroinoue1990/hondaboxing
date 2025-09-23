@@ -804,3 +804,26 @@ background-image: url(../img/fighter_bg.jpeg);
   visibility: visible;
   transform: translateY(0px);
 }
+
+.marker-img {
+	display:inline;
+	vertical-align: middle;
+}
+
+.highlight-text {
+  color: #003366;
+  font-weight: bold;
+  display: inline-block;
+  position: relative;
+}
+
+.highlight-text::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0.1em;
+  width: 100%;
+  height: 6px;                          /* 下線の太さ */
+  background: rgba(102, 153, 204, 0.3); /* 柔らかい薄青 */
+  border-radius: 3px;                   /* 丸みを付けて柔らかさUP */
+}
