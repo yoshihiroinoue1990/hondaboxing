@@ -47,7 +47,7 @@ iframe {
 /* 固定ボタン（体験予約ボタン）*/
 .fixed-trial-button {
   position: fixed;
-  width: clamp(8.4rem, 4.296rem + 8.07vw, 10rem);
+  width: clamp(6rem, 3rem + 6vw, 8rem);
   height: auto;
   margin-left: auto;
   top: 72%;
@@ -59,7 +59,7 @@ iframe {
 
 .fixed-reserve-button {
   position: fixed;
-  width: clamp(8.4rem, 4.296rem + 8.07vw, 10rem);
+  width: clamp(6rem, 3rem + 6vw, 8rem);
   height: auto;
   margin-left: auto;
   top: 72%;
@@ -85,6 +85,13 @@ iframe {
   50%,
   70% {
     transform: scale(0.95);
+  }
+}
+
+@media (max-width: 639px) {
+  .fixed-trial-button,
+  .fixed-reserve-button {
+    top: 80%;
   }
 }
 
