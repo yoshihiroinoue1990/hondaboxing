@@ -1,9 +1,9 @@
-name: Debug Deploy to XSERVER via SSH
+name: Deploy to XSERVER via SSH using appleboy
 
 on:
   push:
     branches:
-      - debug-deploy # デバッグ用ブランチ。main にマージする前にテスト
+      - main # main に push されたら自動実行
 
 jobs:
   deploy:
@@ -14,44 +14,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ SSH 設定
-      - name: Setup SSH key
-        run: |
-          mkdir -p ~/.ssh
-          printf "%s\n" "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      # 2️⃣ SSH 経由で rsync デプロイ
+      - name: Deploy via SSH and rsync
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }} # 空なら空白で OK
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            # デプロイ先ディレクトリに移動
+            cd ${{ secrets.DEPLOY_PATH }}
 
-      # 3️⃣ SSH 接続テスト
-      - name: SSH connection test
-        run: |
-          ssh -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo SSH connection OK"
+            # rsync を実行（サーバー上で pull でも OK）
+            rsync -avz --delete \
+              --exclude '.git' \
+              --exclude '.github' \
+              --exclude '.gitignore' \
+              --exclude 'README.md' \
+              --exclude '.DS_Store' \
+              $GITHUB_WORKSPACE/ ./
 
-      # 4️⃣ rsync dry-run (コピー内容を確認する)
-      - name: rsync dry-run
-        run: |
-          rsync -avzn \
-            -e "ssh -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }}" \
-            --exclude '.git' \
-            --exclude '.github' \
-            --exclude '.gitignore' \
-            --exclude 'README.md' \
-            --exclude '.DS_Store' \
-            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
-
-      # 5️⃣ 実際の rsync デプロイ（--delete はまだ外す）
-      - name: rsync deploy (without --delete)
-        run: |
-          rsync -avz \
-            -e "ssh -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }}" \
-            --exclude '.git' \
-            --exclude '.github' \
-            --exclude '.gitignore' \
-            --exclude 'README.md' \
-            --exclude '.DS_Store' \
-            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
-
-      # 6️⃣ 後片付け
-      - name: Cleanup SSH key
-        if: always()
-        run: rm -f ~/.ssh/id_rsa
+            # デバッグ用に確認
+            echo "Deploy finished at $(date)"
