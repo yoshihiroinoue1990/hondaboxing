@@ -1,40 +1,24 @@
-name: Deploy to XSERVER via SSH using appleboy
+name: SSH Connection Test
 
 on:
+  workflow_dispatch: # 手動実行可能
   push:
     branches:
-      - debug-deploy # debug-deploy に push されたら自動実行
+      - debug-deploy
 
 jobs:
-  deploy:
+  job1:
+    name: SSH Test
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ リポジトリのコードをチェックアウト
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # 2️⃣ SSH 経由で rsync デプロイ
-      - name: Deploy via SSH and rsync
+      - name: SSH connection test
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }} # 空なら空白で OK
+          passphrase: ${{ secrets.SSH_PASSPHRASE }} # 空なら空白でOK
           port: ${{ secrets.SSH_PORT }}
           script: |
-            # デプロイ先ディレクトリに移動
-            cd ${{ secrets.DEPLOY_PATH }}
-
-            # rsync を実行（サーバー上で pull でも OK）
-            rsync -avz --delete \
-              --exclude '.git' \
-              --exclude '.github' \
-              --exclude '.gitignore' \
-              --exclude 'README.md' \
-              --exclude '.DS_Store' \
-              $GITHUB_WORKSPACE/ ./
-
-            # デバッグ用に確認
-            echo "Deploy finished at $(date)"
+            echo "SSH connection OK"
