@@ -300,6 +300,11 @@ th {
   .imgtext-container > .img {
     flex: 2;
   }
+
+  /* 国立競技場リレーマラソン結果報告セクションのみ上揃え */
+  .imgtext-container.align-top {
+    align-items: flex-start;
+  }
 }
 
 .heading-decoration {
