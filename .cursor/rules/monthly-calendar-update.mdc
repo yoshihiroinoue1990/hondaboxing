@@ -1,0 +1,40 @@
+---
+description: 毎月の休館日カレンダー画像生成と休館日更新の手順
+alwaysApply: false
+---
+
+# 毎月の休館日カレンダー更新手順
+
+ユーザーから休館日の更新依頼があった場合、以下の手順で対応する。
+
+## 1. 休館日カレンダー画像の生成
+
+`tools/generate-calendar.mjs` を使って画像を生成する。
+
+```bash
+node tools/generate-calendar.mjs --year YYYY --month M --closed "日:理由,日:理由,..."
+```
+
+例（2026年5月の場合）:
+
+```bash
+node tools/generate-calendar.mjs --year 2026 --month 5 --closed "14:第2木曜日定休日,28:第4木曜日定休日"
+```
+
+- 出力先: `img/kyukanbi_YYYYMM.png`（自動）
+- Puppeteer が必要。未インストールなら `cd tools && npm install` を実行する
+- `--out` オプションで出力先を変更可能
+
+## 2. index.html の休館日セクション更新
+
+`index.html` 内の以下の3箇所を更新する:
+
+1. **見出し**: `<h2>` の「2026年N月の休館日」
+2. **リスト**: `<dt>★...★</dt>` と `<dd>` 内の休館日一覧
+3. **画像パス**: `<img src="img/kyukanbi_YYYYMM.png">`
+
+## 3. 注意事項
+
+- 画像ファイル名の形式: `kyukanbi_YYYYMM.png`（例: `kyukanbi_202605.png`）
+- 定休日は通常「第2木曜日」「第4木曜日」の2日
+- 祝日や試合による臨時休館日はユーザーから指示される
