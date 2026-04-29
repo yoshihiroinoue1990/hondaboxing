@@ -902,3 +902,129 @@ background-image: url(../img/fighter_bg.jpeg);
   background: rgba(102, 153, 204, 0.3); /* 柔らかい薄青 */
   border-radius: 3px;                   /* 丸みを付けて柔らかさUP */
 }
+
+.kids-media {
+  width: 100%;
+  margin-top: 20px;
+}
+
+video.kids-media {
+  display: block;
+  height: auto;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --v-space: 48px;
+  }
+
+  body {
+    font-size: 15px;
+  }
+
+  p {
+    line-height: 1.75;
+  }
+
+  .w-container {
+    width: min(92%, 430px);
+  }
+
+  .header {
+    height: 76px;
+  }
+
+  .site img {
+    width: 170px;
+  }
+
+  .hero {
+    height: 56vh;
+    min-height: 360px;
+  }
+
+  .hero h1 {
+    margin-bottom: 0;
+  }
+
+  .imgtext,
+  .imgtext + .imgtext {
+    padding-top: 36px;
+    padding-bottom: 36px;
+  }
+
+  .imgtext-container {
+    gap: 24px;
+  }
+
+  .heading-decoration {
+    font-size: clamp(24px, 8vw, 30px);
+    line-height: 1.35;
+  }
+
+  .heading-decoration::after {
+    width: 96px;
+    margin-top: 0.45em;
+  }
+
+  .heading-decoration + p {
+    margin-top: 0.6em;
+    margin-bottom: 1.2em;
+    font-size: 14px;
+  }
+
+  .imgtext-container > .text {
+    order: 1;
+  }
+
+  .imgtext-container > .img {
+    order: 2;
+    margin: 0;
+  }
+
+  .imgtext-container > .img img {
+    border-radius: 10px;
+  }
+
+  .top_news {
+    margin-top: 14px;
+    padding: 14px 12px;
+    border: 1px solid #eeeeee;
+    border-radius: 10px;
+    background-color: #ffffff;
+  }
+
+  .imgtext-reverse .top_news {
+    border-color: #e3e3e3;
+  }
+
+  dt {
+    margin: 0 0 10px;
+    padding: 6px 10px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .fixed-trial-button,
+  .fixed-reserve-button {
+    width: 5.5rem;
+    top: auto;
+    right: 12px;
+    bottom: 14px;
+  }
+
+  .posts {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+
+  .posts-container {
+    gap: 28px;
+  }
+}

@@ -59,6 +59,11 @@ const MONTH_EN = [
 
 function buildCalendarHTML(year, month, closedDays) {
   const closedSet = new Set(closedDays.map(d => d.day));
+  const holidaySet = new Set(
+    closedDays
+      .filter(d => d.reason.includes('の日') || d.reason.includes('休日') || d.reason === '元日')
+      .map(d => d.day)
+  );
 
   const firstDay = new Date(year, month - 1, 1).getDay(); // 0=Sun
   const daysInMonth = new Date(year, month, 0).getDate();
@@ -75,10 +80,12 @@ function buildCalendarHTML(year, month, closedDays) {
   for (let d = 1; d <= daysInMonth; d++) {
     const dow = (firstDay + d - 1) % 7; // 0=Sun 6=Sat
     const isClosed = closedSet.has(d);
+    const isHoliday = holidaySet.has(d);
     const classes = [
       dow === 0 ? 'sun' : '',
       dow === 6 ? 'sat' : '',
       isClosed ? 'closed' : '',
+      isHoliday ? 'holiday' : '',
     ].filter(Boolean).join(' ');
 
     row += `<td${classes ? ` class="${classes}"` : ''}>${d}${isClosed ? '<span class="rest-mark">休</span>' : ''}</td>`;
@@ -147,6 +154,7 @@ function buildCalendarHTML(year, month, closedDays) {
   }
   tbody td.sun { color: #cc3333; }
   tbody td.sat { color: #3366aa; }
+  tbody td.holiday { color: #cc3333; }
   tbody td.closed { background: #fdf5e6; }
   tbody td .rest-mark {
     display: block; font-size: 16px; font-weight: 700;
