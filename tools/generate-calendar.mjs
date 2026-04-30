@@ -115,7 +115,7 @@ function buildCalendarHTML(year, month, closedDays) {
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: #e3e8ee;
+    background: #0048b0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -131,14 +131,14 @@ function buildCalendarHTML(year, month, closedDays) {
   }
   .calendar-title {
     text-align: center; margin-bottom: 4px;
-    color: #4a6670; font-weight: 700; font-size: 16px; letter-spacing: 0.05em;
+    color: #0048b0; font-weight: 700; font-size: 16px; letter-spacing: 0.05em;
   }
   .calendar-title .month-num {
-    font-size: 52px; font-weight: 800; color: #3d5a68;
+    font-size: 52px; font-weight: 800; color: #0048b0;
     vertical-align: middle; line-height: 1; margin: 0 2px;
   }
-  .calendar-title .month-label { font-size: 22px; color: #4a6670; vertical-align: middle; }
-  .calendar-title .year { font-size: 18px; color: #4a6670; vertical-align: middle; margin-right: 2px; }
+  .calendar-title .month-label { font-size: 22px; color: #0048b0; vertical-align: middle; }
+  .calendar-title .year { font-size: 18px; color: #0048b0; vertical-align: middle; margin-right: 2px; }
   .calendar-subtitle {
     text-align: center; font-size: 14px; color: #666;
     margin-bottom: 20px; letter-spacing: 0.15em;
