@@ -426,7 +426,14 @@ th {
   width: 100%;
   max-height: 400px;
   object-fit: cover;
+  object-position: center top;
   margin-bottom: calc(var(--v-space) * 2 / 3);
+}
+
+@media (min-width: 768px) {
+  .entry-img img {
+    object-position: center 22%;
+  }
 }
 
 .entry-img iframe {
