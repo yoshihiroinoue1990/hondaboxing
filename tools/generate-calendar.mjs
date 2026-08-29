@@ -10,6 +10,9 @@
  *   --year    年（例: 2026）
  *   --month   月（例: 5）
  *   --closed  休館日をカンマ区切りで指定。「日:理由」の形式（例: "8:定休日,22:定休日"）
+ *   --hours   短縮営業日をカンマ区切りで指定。「日:営業時間」の形式（例: "3:15〜18時"）
+ *   --open    通常営業などの注記をカンマ区切りで指定。「日:注記」の形式（例: "24:通常営業"）
+ *   --holidays 祝日の日付をカンマ区切りで指定（例: "21,22,23"）
  *   --out     出力先パス（省略時: img/kyukanbi_YYYYMM.png）
  */
 
@@ -35,18 +38,28 @@ function parseArgs() {
   const year  = parseInt(parsed.year  || now.getFullYear(), 10);
   const month = parseInt(parsed.month || now.getMonth() + 1, 10);
 
-  const closed = (parsed.closed || '')
+  const parseEntries = value => (value || '')
     .split(',')
     .filter(Boolean)
     .map(entry => {
-      const [day, reason] = entry.split(':');
-      return { day: parseInt(day, 10), reason: reason || '' };
+      const separatorIndex = entry.indexOf(':');
+      const day = separatorIndex === -1 ? entry : entry.slice(0, separatorIndex);
+      const label = separatorIndex === -1 ? '' : entry.slice(separatorIndex + 1);
+      return { day: parseInt(day, 10), label };
     });
+
+  const closed = parseEntries(parsed.closed).map(({ day, label }) => ({ day, reason: label }));
+  const hours = parseEntries(parsed.hours);
+  const open = parseEntries(parsed.open);
+  const holidays = (parsed.holidays || '')
+    .split(',')
+    .filter(Boolean)
+    .map(day => parseInt(day, 10));
 
   const mm = String(month).padStart(2, '0');
   const out = parsed.out || resolve(projectRoot, `img/kyukanbi_${year}${mm}.png`);
 
-  return { year, month, closed, out };
+  return { year, month, closed, hours, open, holidays, out };
 }
 
 // ---------------------------------------------------------------------------
@@ -57,13 +70,14 @@ const MONTH_EN = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-function buildCalendarHTML(year, month, closedDays) {
+function buildCalendarHTML(year, month, closedDays, hourEntries, openEntries, holidays) {
   const closedSet = new Set(closedDays.map(d => d.day));
-  const holidaySet = new Set(
-    closedDays
-      .filter(d => d.reason.includes('の日') || d.reason.includes('休日') || d.reason === '元日')
-      .map(d => d.day)
-  );
+  const hourMap = new Map(hourEntries.map(entry => [entry.day, entry.label]));
+  const openMap = new Map(openEntries.map(entry => [entry.day, entry.label]));
+  const inferredHolidays = closedDays
+    .filter(entry => entry.reason.includes('の日') || entry.reason.includes('休日') || entry.reason === '元日')
+    .map(entry => entry.day);
+  const holidaySet = new Set([...holidays, ...inferredHolidays]);
 
   const firstDay = new Date(year, month - 1, 1).getDay(); // 0=Sun
   const daysInMonth = new Date(year, month, 0).getDate();
@@ -81,14 +95,26 @@ function buildCalendarHTML(year, month, closedDays) {
     const dow = (firstDay + d - 1) % 7; // 0=Sun 6=Sat
     const isClosed = closedSet.has(d);
     const isHoliday = holidaySet.has(d);
+    const hourLabel = hourMap.get(d);
+    const openLabel = openMap.get(d);
     const classes = [
       dow === 0 ? 'sun' : '',
       dow === 6 ? 'sat' : '',
       isClosed ? 'closed' : '',
       isHoliday ? 'holiday' : '',
+      hourLabel ? 'short-hours' : '',
+      openLabel ? 'special-open' : '',
     ].filter(Boolean).join(' ');
 
-    row += `<td${classes ? ` class="${classes}"` : ''}>${d}${isClosed ? '<span class="rest-mark">休</span>' : ''}</td>`;
+    const dayNote = isClosed
+      ? '<span class="rest-mark">休</span>'
+      : hourLabel
+        ? `<span class="hours-mark">${hourLabel}</span>`
+        : openLabel
+          ? `<span class="open-mark">${openLabel}</span>`
+          : '';
+
+    row += `<td${classes ? ` class="${classes}"` : ''}>${d}${dayNote}</td>`;
     col++;
 
     if (col === 7) {
@@ -156,10 +182,19 @@ function buildCalendarHTML(year, month, closedDays) {
   tbody td.sat { color: #3366aa; }
   tbody td.holiday { color: #cc3333; }
   tbody td.closed { background: #fdf5e6; }
+  tbody td.short-hours { background: #eef6ff; }
+  tbody td.special-open { background: #eef9f0; }
   tbody td .rest-mark {
     display: block; font-size: 16px; font-weight: 700;
     color: #cc3333; margin-top: 2px; letter-spacing: 0.1em;
   }
+  tbody td .hours-mark,
+  tbody td .open-mark {
+    display: block; font-size: 11px; font-weight: 700;
+    margin-top: 5px; line-height: 1.15; white-space: nowrap;
+  }
+  tbody td .hours-mark { color: #1457a6; }
+  tbody td .open-mark { color: #25833a; }
   .calendar-footer {
     text-align: right; margin-top: 10px;
     font-size: 13px; color: #777; padding-right: 4px;
@@ -184,7 +219,7 @@ function buildCalendarHTML(year, month, closedDays) {
         </thead>
         <tbody>${rows}</tbody>
       </table>
-      <div class="calendar-footer">「休」はお休み</div>
+      <div class="calendar-footer">「休」は休館 ／ 時刻は営業時間</div>
     </div>
   </div>
 </body>
@@ -195,12 +230,14 @@ function buildCalendarHTML(year, month, closedDays) {
 // メイン
 // ---------------------------------------------------------------------------
 async function main() {
-  const { year, month, closed, out } = parseArgs();
+  const { year, month, closed, hours, open, holidays, out } = parseArgs();
 
   console.log(`📅 ${year}年${month}月のカレンダーを生成します`);
   console.log(`   休館日: ${closed.map(c => `${c.day}日(${c.reason})`).join(', ') || 'なし'}`);
+  console.log(`   短縮営業: ${hours.map(entry => `${entry.day}日(${entry.label})`).join(', ') || 'なし'}`);
+  console.log(`   営業注記: ${open.map(entry => `${entry.day}日(${entry.label})`).join(', ') || 'なし'}`);
 
-  const html = buildCalendarHTML(year, month, closed);
+  const html = buildCalendarHTML(year, month, closed, hours, open, holidays);
 
   const tmpHTML = resolve(projectRoot, `tools/.tmp_calendar_${year}${month}.html`);
   writeFileSync(tmpHTML, html);
