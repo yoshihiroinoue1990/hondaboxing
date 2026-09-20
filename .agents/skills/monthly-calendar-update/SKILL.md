@@ -1,6 +1,6 @@
 ---
-description: 毎月の休館日カレンダー画像生成と休館日更新の手順
-alwaysApply: false
+name: monthly-calendar-update
+description: 本多ボクシングジムの月次更新時に、休館日カレンダー画像を生成し、index.htmlの休館日表示を更新する。
 ---
 
 # 毎月の休館日カレンダー更新手順
