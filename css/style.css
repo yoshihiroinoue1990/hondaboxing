@@ -542,7 +542,8 @@ fieldset {
   padding: 20px 20px;
 }
 
-.fighter img {
+.fighter img,
+.fighter .fighter-portrait {
   width: 100%;
   height: 400px;
   object-fit: cover;
